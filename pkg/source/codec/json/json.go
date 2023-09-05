@@ -17,15 +17,11 @@ limitations under the License.
 package json
 
 import (
-	jsoniter "github.com/json-iterator/go"
 	"github.com/loggie-io/loggie/pkg/core/api"
 	"github.com/loggie-io/loggie/pkg/core/log"
 	"github.com/loggie-io/loggie/pkg/source/codec"
+	"github.com/loggie-io/loggie/pkg/util/json"
 	"github.com/pkg/errors"
-)
-
-var (
-	json = jsoniter.ConfigFastest
 )
 
 const (
@@ -72,9 +68,8 @@ func (j *Json) Decode(e api.Event) (api.Event, error) {
 	}
 
 	if err := json.Unmarshal(e.Body(), &header); err != nil {
-		log.Error("source codec json unmarshal error: %v", err)
-		log.Debug("body: %s", string(e.Body()))
-		return nil, err
+		log.Debug("source codec json unmarshal error, body: %s", string(e.Body()))
+		return nil, errors.WithMessagef(err, "json unmarshal error")
 	}
 
 	body, err := getBytes(header, j.config.BodyFields)

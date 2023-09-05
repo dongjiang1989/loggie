@@ -18,16 +18,13 @@ package json
 
 import (
 	"github.com/loggie-io/loggie/pkg/core/log"
+	"github.com/loggie-io/loggie/pkg/util"
 	"time"
 
-	jsoniter "github.com/json-iterator/go"
 	"github.com/loggie-io/loggie/pkg/core/api"
 	eventer "github.com/loggie-io/loggie/pkg/core/event"
 	"github.com/loggie-io/loggie/pkg/sink/codec"
-)
-
-var (
-	json = jsoniter.ConfigFastest
+	"github.com/loggie-io/loggie/pkg/util/json"
 )
 
 type Json struct {
@@ -73,7 +70,7 @@ func (j *Json) Encode(e api.Event) ([]byte, error) {
 		beatsFormat(e)
 	} else if len(e.Body()) != 0 {
 		// put body in header
-		header[eventer.Body] = string(e.Body())
+		header[eventer.Body] = util.ByteToStringUnsafe(e.Body())
 	}
 
 	var result []byte

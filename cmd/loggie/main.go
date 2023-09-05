@@ -20,6 +20,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/loggie-io/loggie/pkg/ops"
+	"github.com/loggie-io/loggie/pkg/util/json"
+	"github.com/pkg/errors"
+	"go.uber.org/automaxprocs/maxprocs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -40,8 +43,6 @@ import (
 	"github.com/loggie-io/loggie/pkg/ops/helper"
 	"github.com/loggie-io/loggie/pkg/util/persistence"
 	"github.com/loggie-io/loggie/pkg/util/yaml"
-	"github.com/pkg/errors"
-	"go.uber.org/automaxprocs/maxprocs"
 )
 
 var (
@@ -86,11 +87,13 @@ func main() {
 	// system config file
 	syscfg := sysconfig.Config{}
 	cfg.UnpackTypeDefaultsAndValidate(strings.ToLower(configType), globalConfigFile, &syscfg)
-
+	// register jsonEngine
+	json.SetDefaultEngine(syscfg.Loggie.JSONEngine)
 	// start eventBus listeners
 	eventbus.StartAndRun(syscfg.Loggie.MonitorEventBus)
 	// init log after error func
 	log.AfterError = eventbus.AfterErrorFunc
+	log.AfterErrorConfig = syscfg.Loggie.ErrorAlertConfig
 
 	log.Info("pipelines config path: %s", pipelineConfigPath)
 	// pipeline config file

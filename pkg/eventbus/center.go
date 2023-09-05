@@ -27,10 +27,6 @@ import (
 // asyncConsumerSize should always be 1 because concurrency may cause panic
 var defaultEventCenter = NewEventCenter(2048, 1)
 
-func Publish(topic string, data interface{}) {
-	defaultEventCenter.publish(NewEvent(topic, data))
-}
-
 func PublishOrDrop(topic string, data interface{}) {
 	defaultEventCenter.publishOrDrop(NewEvent(topic, data))
 }
@@ -58,7 +54,7 @@ func UnRegistrySubscribeTemporary(subscribe *Subscribe) {
 }
 
 func AfterErrorFunc(errorMsg string) {
-	Publish(ErrorTopic, ErrorMetricData{
+	PublishOrDrop(ErrorTopic, ErrorMetricData{
 		ErrorMsg: errorMsg,
 	})
 }
@@ -125,10 +121,6 @@ func (ec *EventCenter) unRegistryTemporary(subscribe *Subscribe) {
 	ec.inActiveSubscribe(subscribe)
 }
 
-func (ec *EventCenter) publish(event Event) {
-	ec.eventChan <- event
-}
-
 func (ec *EventCenter) publishOrDrop(event Event) {
 	select {
 	case ec.eventChan <- event:
@@ -147,7 +139,9 @@ func (ec *EventCenter) start(config Config) {
 		}
 		subscribe.listener = subscribe.factory()
 		listener := subscribe.listener
-		listener.Init(&context.DefaultContext{})
+		if err := listener.Init(&context.DefaultContext{}); err != nil {
+			log.Panic("init listener %s failed: %v", name, err)
+		}
 
 		if conf == nil {
 			conf = cfg.NewCommonCfg()
@@ -157,7 +151,9 @@ func (ec *EventCenter) start(config Config) {
 			log.Panic("unpack listener %s config error: %v", name, err)
 		}
 		config.ListenerConfigs[name] = conf
-		listener.Start()
+		if err := listener.Start(); err != nil {
+			log.Panic("start listener %s failed: %v", name, err)
+		}
 		log.Info("listener(%s) start", listener.Name())
 
 		ec.activeSubscribe(subscribe)
@@ -210,8 +206,6 @@ func (ec *EventCenter) run() {
 				for _, subscribe := range metas {
 					subscribe.listener.Subscribe(e)
 				}
-			} else {
-				log.Debug("topic(%s) has no consumer listener", topic)
 			}
 		}
 	}

@@ -14,7 +14,7 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/snappy v0.0.3
-	github.com/google/go-cmp v0.5.8
+	github.com/google/go-cmp v0.5.9
 	github.com/hpcloud/tail v1.0.0
 	github.com/jcmturner/gokrb5/v8 v8.4.3
 	github.com/json-iterator/go v1.1.12
@@ -32,14 +32,13 @@ require (
 	github.com/segmentio/kafka-go v0.4.39
 	github.com/shirou/gopsutil/v3 v3.22.2
 	github.com/smartystreets-prototypes/go-disruptor v0.0.0-20200316140655-c96477fd7a6a
-	github.com/stretchr/testify v1.8.0
-	github.com/thinkeridea/go-extend v1.3.2
+	github.com/stretchr/testify v1.8.1
 	github.com/twmb/franz-go v1.10.4
 	github.com/twmb/franz-go/pkg/sasl/kerberos v1.1.0
 	go.uber.org/atomic v1.7.0
 	go.uber.org/automaxprocs v1.5.1
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234
-	golang.org/x/text v0.3.7
+	golang.org/x/net v0.8.0
+	golang.org/x/text v0.8.0
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
@@ -60,13 +59,16 @@ require (
 	github.com/apache/pulsar-client-go/oauth2 v0.0.0-20220120090717-25e59572242e // indirect
 	github.com/ardielle/ardielle-go v1.5.2 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/danieljoos/wincred v1.0.2 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
-	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/dvsekhvalnov/jose2go v0.0.0-20200901110807-248326c1351b // indirect
+	github.com/emirpasic/gods v1.12.0 // indirect
+	github.com/fatih/color v1.10.0 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
+	github.com/golang/mock v1.5.0 // indirect
 	github.com/google/flatbuffers v1.12.1 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
@@ -76,20 +78,32 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/keybase/go-keychain v0.0.0-20190712205309-48d3d31d256d // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
+	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/linkedin/goavro/v2 v2.9.8 // indirect
+	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
+	github.com/stathat/consistent v1.0.0 // indirect
+	github.com/tidwall/gjson v1.13.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
+	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/twmb/franz-go/pkg/kmsg v1.2.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
+	golang.org/x/crypto v0.7.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
-	golang.org/x/sys v0.0.0-20221010170243-090e33056c14 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	golang.org/x/tools v0.1.12 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220107163113-42d7afdf6368 // indirect
 )
@@ -103,7 +117,7 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/docker/distribution v2.7.1+incompatible // indirect
+	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.8.0 // indirect
@@ -162,6 +176,12 @@ require (
 )
 
 require (
+	github.com/apache/rocketmq-client-go/v2 v2.1.1
+	github.com/bytedance/sonic v1.9.2
+	github.com/dustin/go-humanize v1.0.0
+	github.com/elastic/go-elasticsearch/v7 v7.17.10
+	github.com/goccy/go-json v0.10.2
+	github.com/goccy/go-yaml v1.11.0
 	github.com/mattn/go-sqlite3 v1.11.0
 	k8s.io/metrics v0.25.4
 	sigs.k8s.io/controller-runtime v0.13.1
@@ -169,6 +189,7 @@ require (
 
 replace (
 	github.com/docker/docker => github.com/docker/docker v1.13.1
+	github.com/elastic/go-elasticsearch/v7 => github.com/loggie-io/go-elasticsearch/v7 v7.17.11-0.20230703032733-f33cec60fa85
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 	google.golang.org/protobuf => google.golang.org/protobuf v1.26.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 => github.com/machine3/lumberjack v0.2.0
