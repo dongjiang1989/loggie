@@ -96,7 +96,7 @@ func main() {
 			),
 		),
 	); err != nil {
-		log.Warn("Failed to set GOMEMLIMIT automatically", "component", "automemlimit", "err", err)
+		log.Fatal("Failed to set GOMEMLIMIT automatically. err: %v", err)
 	}
 	log.Info("real GOMEMLIMIT set to %d", debug.SetMemoryLimit(-1))
 
