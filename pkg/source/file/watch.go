@@ -18,11 +18,12 @@ package file
 
 import (
 	"fmt"
-	"github.com/loggie-io/loggie/pkg/util/persistence/reg"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/loggie-io/loggie/pkg/util/persistence/reg"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/loggie-io/loggie/pkg/core/log"
@@ -318,8 +319,10 @@ func (w *Watcher) eventBus(e jobEvent) {
 			}
 		}
 		// Pre-allocation offset
-		if e.job.task.config.ReadFromTail {
-			existAckOffset = fileSize
+		if existAckOffset == 0 || e.job.task.config.ReadFromTail {
+			if e.job.task.config.ReadFromTail {
+				existAckOffset = fileSize
+			}
 			w.preAllocationOffset(existAckOffset, job)
 		}
 		// set ack offset
@@ -726,6 +729,9 @@ func (w *Watcher) run() {
 		case <-w.done:
 			return
 		case watchTaskEvent := <-w.watchTaskEventChan:
+			if watchTaskEvent.watchTaskType == START {
+				w.scanNewFiles()
+			}
 			w.handleWatchTaskEvent(watchTaskEvent)
 		case job := <-w.zombieJobChan:
 			w.decideZombieJob(job)
@@ -994,6 +1000,9 @@ func ExportWatchMetric() map[string]eventbus.WatchMetricData {
 
 	watchLock.Lock()
 	defer watchLock.Unlock()
+	if globalWatcher == nil {
+		return watcherMetrics
+	}
 	for _, watchTask := range globalWatcher.sourceWatchTasks {
 		paths := getPathsIfDynamicContainerLogs(watchTask.config.Paths, watchTask.pipelineName, watchTask.sourceName)
 		m := globalWatcher.reportWatchMetric(watchTask, paths, watchTask.pipelineName, watchTask.sourceName)

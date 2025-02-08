@@ -23,7 +23,7 @@ import (
 	logconfigv1beta1 "github.com/loggie-io/loggie/pkg/discovery/kubernetes/apis/loggie/v1beta1"
 	"github.com/loggie-io/loggie/pkg/util/json"
 	"github.com/pkg/errors"
-	criapi "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
+	criapi "k8s.io/cri-api/pkg/apis/runtime/v1"
 	"path"
 )
 
@@ -115,13 +115,11 @@ func (c *ContainerD) GetRootfsPath(ctx context.Context, containerId string, cont
 		if err != nil {
 			return nil, err
 		}
-	} else if runtime == string(RuncRuntimeType) {
+	} else {
 		prefix, err = c.getRuncRuntimeRootfsPath(infoMap, containerId)
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		return nil, errors.Errorf("Unknown runtime type from container(id: %s) status", containerId)
 	}
 
 	var rootfsPaths []string

@@ -99,6 +99,7 @@ func (s *Sink) Start() error {
 		kgo.SeedBrokers(c.Brokers...),
 		kgo.ProducerBatchCompression(getCompression(c.Compression)),
 		kgo.WithLogger(&logger),
+		kgo.AllowAutoTopicCreation(),
 	}
 
 	if c.BatchSize > 0 {
@@ -222,7 +223,7 @@ func (s *Sink) Consume(batch api.Batch) api.Result {
 }
 
 func (s *Sink) selectTopic(e api.Event) (string, error) {
-	return s.topicPattern.WithObject(runtime.NewObject(e.Header())).Render()
+	return s.topicPattern.WithObject(runtime.NewObject(e.Header())).RenderWithStrict()
 }
 
 func (s *Sink) getPartitionKey(e api.Event) (string, error) {

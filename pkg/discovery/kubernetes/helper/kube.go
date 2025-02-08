@@ -25,10 +25,12 @@ import (
 	"strings"
 	"time"
 
+	"k8s.io/client-go/kubernetes"
+
 	dockerclient "github.com/docker/docker/client"
 	"github.com/loggie-io/loggie/pkg/discovery/kubernetes/runtime"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	criapi "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
+	criapi "k8s.io/cri-api/pkg/apis/runtime/v1"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -66,18 +68,13 @@ func MetaNamespaceKey(namespace string, name string) string {
 
 type FuncGetRelatedPod func() ([]*corev1.Pod, error)
 
-func GetLogConfigRelatedPod(lgc *logconfigv1beta1.LogConfig, podsLister corev1listers.PodLister) ([]*corev1.Pod, error) {
-
-	sel, err := Selector(lgc.Spec.Selector.LabelSelector)
+func GetLogConfigRelatedPod(lgc *logconfigv1beta1.LogConfig, podsLister corev1listers.PodLister, clientSet kubernetes.Interface) ([]*corev1.Pod, error) {
+	filter := NewPodFilter(lgc, podsLister, clientSet)
+	pods, err := filter.Filter()
 	if err != nil {
 		return nil, err
 	}
-	ret, err := podsLister.Pods(lgc.Namespace).List(sel)
-	if err != nil {
-		return nil, errors.WithMessagef(err, "%s/%s cannot find pod by labelSelector %#v", lgc.Namespace, lgc.Name, lgc.Spec.Selector.PodSelector.LabelSelector)
-	}
-
-	return ret, nil
+	return pods, nil
 }
 
 func Selector(labelSelector map[string]string) (labels.Selector, error) {
@@ -110,7 +107,7 @@ func Selector(labelSelector map[string]string) (labels.Selector, error) {
 	return selector, nil
 }
 
-func GetPodRelatedLogConfigs(pod *corev1.Pod, lgcLister logconfigLister.LogConfigLister) ([]*logconfigv1beta1.LogConfig, error) {
+func GetPodRelatedLogConfigs(pod *corev1.Pod, lgcLister logconfigLister.LogConfigLister, clientSet kubernetes.Interface) ([]*logconfigv1beta1.LogConfig, error) {
 	lgcList, err := lgcLister.LogConfigs(pod.Namespace).List(labels.Everything())
 	if err != nil {
 		return nil, err
@@ -122,14 +119,19 @@ func GetPodRelatedLogConfigs(pod *corev1.Pod, lgcLister logconfigLister.LogConfi
 			continue
 		}
 
-		if LabelsSubset(lgc.Spec.Selector.LabelSelector, pod.Labels) {
+		confirm := NewPodsConfirm(lgc, clientSet)
+		result, err := confirm.Confirm(pod)
+		if err != nil {
+			return nil, err
+		}
+		if result {
 			ret = append(ret, lgc)
 		}
 	}
 	return ret, nil
 }
 
-func GetPodRelatedClusterLogConfigs(pod *corev1.Pod, clgcLister logconfigLister.ClusterLogConfigLister) ([]*logconfigv1beta1.ClusterLogConfig, error) {
+func GetPodRelatedClusterLogConfigs(pod *corev1.Pod, clgcLister logconfigLister.ClusterLogConfigLister, clientSet kubernetes.Interface) ([]*logconfigv1beta1.ClusterLogConfig, error) {
 	clgcList, err := clgcLister.List(labels.Everything())
 	if err != nil {
 		return nil, err
@@ -137,11 +139,18 @@ func GetPodRelatedClusterLogConfigs(pod *corev1.Pod, clgcLister logconfigLister.
 
 	ret := make([]*logconfigv1beta1.ClusterLogConfig, 0)
 	for _, lgc := range clgcList {
-		if lgc.Spec.Selector == nil || lgc.Spec.Selector.Type != logconfigv1beta1.SelectorTypePod {
+		if lgc.Spec.Selector.Type != logconfigv1beta1.SelectorTypeWorkload && (lgc.Spec.Selector == nil || lgc.Spec.Selector.Type != logconfigv1beta1.SelectorTypePod) {
 			continue
 		}
 
-		if LabelsSubset(lgc.Spec.Selector.LabelSelector, pod.Labels) {
+		logConfig := lgc.ToLogConfig()
+		confirm := NewPodsConfirm(logConfig, clientSet)
+		result, err := confirm.Confirm(pod)
+		if err != nil {
+			log.Error("filter pod error:%s", err)
+			continue
+		}
+		if result {
 			ret = append(ret, lgc)
 		}
 	}
@@ -440,6 +449,10 @@ func nodePathByContainerPath(pathPattern string, pod *corev1.Pod, volumeName str
 			return getEmptyDirNodePath(pathPattern, pod, volumeName, volumeMountPath, kubeletRootDir, subPathRes), nil
 		}
 
+		if vol.NFS != nil && containerRuntime.Name() == runtime.RuntimeDocker {
+			return getNfsPath(pathPattern, pod, volumeName, volumeMountPath, kubeletRootDir, subPathRes), nil
+		}
+
 		// If pod mount pvc as log path，we need set rootFsCollectionEnabled to true.
 		if vol.PersistentVolumeClaim != nil && rootFsCollectionEnabled {
 			return getPVNodePath(pathPattern, volumeMountPath, containerId, containerRuntime)
@@ -459,6 +472,13 @@ func getHostPath(pathPattern string, volumeMountPath string, hostPath string, su
 
 func getEmptyDirNodePath(pathPattern string, pod *corev1.Pod, volumeName string, volumeMountPath string, kubeletRootDir string, subPath string) string {
 	emptyDirPath := filepath.Join(kubeletRootDir, "pods", string(pod.UID), "volumes/kubernetes.io~empty-dir", volumeName)
+	pathSuffix := strings.TrimPrefix(pathPattern, volumeMountPath)
+	return filepath.Join(emptyDirPath, subPath, pathSuffix)
+}
+
+// refers to https://github.com/kubernetes/kubernetes/blob/6aac45ff1e99068e834ba3b93b673530cf62c007/pkg/volume/nfs/nfs.go#L202
+func getNfsPath(pathPattern string, pod *corev1.Pod, volumeName string, volumeMountPath string, kubeletRootDir string, subPath string) string {
+	emptyDirPath := filepath.Join(kubeletRootDir, "pods", string(pod.UID), "volumes/kubernetes.io~nfs", volumeName)
 	pathSuffix := strings.TrimPrefix(pathPattern, volumeMountPath)
 	return filepath.Join(emptyDirPath, subPath, pathSuffix)
 }
