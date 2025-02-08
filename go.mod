@@ -1,6 +1,8 @@
 module github.com/loggie-io/loggie
 
-go 1.18
+go 1.22.0
+
+toolchain go1.23.3
 
 require (
 	github.com/aliyun/aliyun-log-go-sdk v0.1.35
@@ -85,6 +87,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
+	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
@@ -175,6 +178,7 @@ require (
 )
 
 require (
+	github.com/KimMachineGun/automemlimit v0.7.0
 	github.com/apache/rocketmq-client-go/v2 v2.1.1
 	github.com/bytedance/sonic v1.9.2
 	github.com/dustin/go-humanize v1.0.0

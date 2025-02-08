@@ -9,6 +9,9 @@ github.com/AthenZ/athenz/libs/go/ztsroletoken
 # github.com/DataDog/zstd v1.5.0
 ## explicit; go 1.14
 github.com/DataDog/zstd
+# github.com/KimMachineGun/automemlimit v0.7.0
+## explicit; go 1.22.0
+github.com/KimMachineGun/automemlimit/memlimit
 # github.com/Microsoft/go-winio v0.4.14
 ## explicit; go 1.12
 github.com/Microsoft/go-winio
@@ -507,6 +510,9 @@ github.com/panjf2000/ants/v2/internal
 # github.com/patrickmn/go-cache v2.1.0+incompatible
 ## explicit
 github.com/patrickmn/go-cache
+# github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
+## explicit; go 1.16
+github.com/pbnjay/memory
 # github.com/pierrec/lz4 v2.6.0+incompatible
 ## explicit
 github.com/pierrec/lz4
