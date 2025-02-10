@@ -319,10 +319,12 @@ func (w *Watcher) eventBus(e jobEvent) {
 			}
 		}
 		// Pre-allocation offset (file was truncated, start from the beginning)
-		if existAckOffset > 0 && e.job.task.config.ReadFromTail {
-			existAckOffset = fileSize
+		if existAckOffset == 0 || e.job.task.config.ReadFromTail {
+			if existAckOffset > 0 && e.job.task.config.ReadFromTail {
+				existAckOffset = fileSize
+			}
+			w.preAllocationOffset(existAckOffset, job)
 		}
-		w.preAllocationOffset(existAckOffset, job)
 		// set ack offset
 		job.NextOffset(existAckOffset)
 		// set line number
